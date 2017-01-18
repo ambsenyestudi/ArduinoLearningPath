@@ -1,7 +1,7 @@
 
 int interval = 300;
 int timer = 0;
-
+//
 void setup()
 {
 	//Use default led
