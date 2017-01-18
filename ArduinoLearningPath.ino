@@ -1,7 +1,7 @@
 
 int interval = 300;
 int timer = 0;
-//
+//This is an example of how to avoid using delay()
 void setup()
 {
 	//Use default led
