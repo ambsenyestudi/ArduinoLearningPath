@@ -21,6 +21,7 @@ const int pushIntevalLenght = totalPushCount * 2;
 BUTTON_STATE myButtonState = READY;
 APPLICATION_STATE myAppState = WELCOMING;
 int locutionCounter = 0;
+
 //locutions
 String welcomingLocutions[]={
 	"Welcome to our button tracking simulator.",
@@ -28,6 +29,7 @@ String welcomingLocutions[]={
 	"Please push your button " + String(totalPushCount) + " times.",
 	"Push the button whenever you are ready to start."
 };
+int welcomingLocutionsLength = sizeof(welcomingLocutions)/ sizeof(String);
 String samplingLocutions[] = {
 	"Well done only ",
 	" remaining"
@@ -231,9 +233,7 @@ void resetCounters()
 }
 void welcome()
 {
-	//this is for now the number of locutions in the array
-	//if (locutionCounter < sizeof(welcomingLocutions))
-	if (locutionCounter < 4)
+	if (locutionCounter < welcomingLocutionsLength)
 	{
 		Serial.println(welcomingLocutions[locutionCounter]);
 		locutionCounter++;
