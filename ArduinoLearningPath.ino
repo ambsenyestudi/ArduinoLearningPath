@@ -12,27 +12,39 @@ typedef enum
 }BUTTON_STATE;
 typedef enum
 {
-	WELCOMING, SAMPLING, PLAYING, RESET
+	WELCOMING, SAMPLING, STARTING_PLAY, PLAYING, RESET
 }APPLICATION_STATE;
+//constants
+const int nPuhses = 10;
+const int pushIntevalLenght = nPuhses * 2;
 //fields
 BUTTON_STATE myButtonState = READY;
 APPLICATION_STATE myAppState = WELCOMING;
-const  int nPuhses = 10;
-int lastUpdate = 0;
 int locutionCounter = 0;
-//array of String 
-String locutions[]={
+//locutions
+String welcomingLocutions[]={
 	"Welcome to our button tracking simulator.",
 	"We will take a number of samples.",
 	"Please push your button ", 
 	" times."
 };
+String samplingLocutions[] = {
+	"Well done only ",
+	" remaining"
+};
+String startPlayingLocution = "Now we have collected all needed that and we'll start playing the secuence";
+int remainingPushes = nPuhses;
+unsigned long current_time = 0;
+int pushIntevalCount = 0;
+unsigned long pushIntervals[pushIntevalLenght];
 // if you declare your functions here the you can consume theme with no order problem through out the code
 /*function declarataion*/
 void welcome();
 void evaluateButtonState(int buttonVal);
 void applicaitonFlow();
+void startPlaying();
 void sampling();
+void recordInterval();
 void setup()
 {
 	//Use default led
@@ -64,6 +76,10 @@ void applicaitonFlow()
 		welcome();
 		break;
 	case SAMPLING:
+		sampling();
+		break;
+	case STARTING_PLAY:
+		startPlaying();
 		break;
 	case PLAYING:
 		break;
@@ -104,17 +120,43 @@ void evaluateButtonState(int buttonVal)
 }
 void sampling()
 {
-	/*
-	//button pushed 
-	if (btn1val == 1)
+	if (remainingPushes > -1)
 	{
-		digitalWrite(LED_BUILTIN, HIGH);
+		if (myButtonState == PUSHED)
+		{
+			digitalWrite(LED_BUILTIN, HIGH);
+			recordInterval();
+		}
+		if (myButtonState == RELEASED)
+		{
+			remainingPushes--;
+			Serial.print(samplingLocutions[0]);
+			Serial.print(remainingPushes);
+			Serial.println(samplingLocutions[1]);
+			recordInterval();
+			digitalWrite(LED_BUILTIN, LOW);
+		}
 	}
 	else
 	{
-		digitalWrite(LED_BUILTIN, LOW);
+		myAppState = STARTING_PLAY;
 	}
-	*/
+}
+void recordInterval()
+{
+	if (pushIntevalCount < pushIntevalLenght)
+	{
+		pushIntervals[pushIntevalCount] = millis() - current_time;
+		pushIntevalCount++;
+	}
+	current_time = millis();
+}
+void startPlaying()
+{
+	
+	Serial.println(startPlayingLocution);
+	
+	myAppState = PLAYING;
 }
 void welcome()
 {
@@ -123,23 +165,23 @@ void welcome()
 	{
 		if (locutionCounter >1)
 		{
-			Serial.print(locutions[2]);
+			Serial.print(welcomingLocutions[2]);
 			Serial.print(nPuhses);
-			Serial.println(locutions[3]);
+			Serial.println(welcomingLocutions[3]);
 			//Reset counter and change state
 			locutionCounter = 0;
-			lastUpdate = millis();
+			current_time = millis();
 			myAppState = SAMPLING;
 		}
 		else
 		{
-			Serial.println(locutions[locutionCounter]);
+			Serial.println(welcomingLocutions[locutionCounter]);
 		}
 		locutionCounter++;
 	}//Excetpion control
 	else
 	{
-		lastUpdate = millis();
+		current_time = millis();
 		myAppState = SAMPLING;
 	}
 }
