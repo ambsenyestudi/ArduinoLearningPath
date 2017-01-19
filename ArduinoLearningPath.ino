@@ -16,9 +16,9 @@ int lastUpdate = 0;
 //array of String 
 String locutions[]={
 	"Welcome to our button tracking simulator.",
-	"We will take a number of samples."
+	"We will take a number of samples.",
 	"Please push your button ", 
-	"times"
+	" times"
 };
 void setup()
 {
@@ -62,7 +62,7 @@ void loop()
 		case WELCOMING:
 			Serial.println(locutions[0]);
 			Serial.println(locutions[1]);
-			Serial.println(locutions[2]);
+			Serial.print(locutions[2]);
 			Serial.print(nPuhses);
 			Serial.println(locutions[3]);
 			myAppState = SAMPLING;
