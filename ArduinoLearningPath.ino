@@ -27,6 +27,7 @@ String welcomingLocutions[]={
 	"We will take a number of samples.",
 	"Please push your button ", 
 	" times."
+	"Push the button whenever you are ready to start."
 };
 String samplingLocutions[] = {
 	"Well done only ",
@@ -34,6 +35,7 @@ String samplingLocutions[] = {
 };
 String startPlayingLocution = "Now we have collected all needed that and we'll start playing the secuence";
 String resetLocution = "Please if at any point you would like to reestart the program, simply push the button";
+String recordingLocution = "Good button push recording has started";
 int remainingPushes = nPuhses;
 unsigned long current_time = 0;
 int pushIntevalCount = 0;
@@ -223,7 +225,7 @@ void resetCounters()
 void welcome()
 {
 	//this is for now the number of locutions in the array
-	if (locutionCounter < 4)
+	if (locutionCounter < 5)
 	{
 		if (locutionCounter >1)
 		{
@@ -231,20 +233,20 @@ void welcome()
 			Serial.print(nPuhses);
 			Serial.println(welcomingLocutions[3]);
 			//Reset counter and change state
-			locutionCounter = 0;
-			current_time = millis();
-			myAppState = SAMPLING;
+			locutionCounter = 4;
 		}
 		else
 		{
 			Serial.println(welcomingLocutions[locutionCounter]);
 		}
 		locutionCounter++;
-	}//Excetpion control
-	else
+	}
+	else if (myButtonState == RELEASED) 
 	{
 		current_time = millis();
 		myAppState = SAMPLING;
+		Serial.println("recordingLocution");
 	}
+
 }
 
