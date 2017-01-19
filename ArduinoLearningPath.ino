@@ -15,8 +15,8 @@ typedef enum
 	WELCOMING, SAMPLING, STARTING_PLAY, PLAYING, RESET
 }APPLICATION_STATE;
 //constants
-const int nPuhses = 10;
-const int pushIntevalLenght = nPuhses * 2;
+const int totalPushCount = 10;
+const int pushIntevalLenght = totalPushCount * 2;
 //fields
 BUTTON_STATE myButtonState = READY;
 APPLICATION_STATE myAppState = WELCOMING;
@@ -26,7 +26,7 @@ String welcomingLocutions[]={
 	"Welcome to our button tracking simulator.",
 	"We will take a number of samples.",
 	"Please push your button ", 
-	" times."
+	" times.",
 	"Push the button whenever you are ready to start."
 };
 String samplingLocutions[] = {
@@ -36,7 +36,7 @@ String samplingLocutions[] = {
 String startPlayingLocution = "Now we have collected all needed that and we'll start playing the secuence";
 String resetLocution = "Please if at any point you would like to reestart the program, simply push the button";
 String recordingLocution = "Good button push recording has started";
-int remainingPushes = nPuhses;
+int pushedSoFar = 0;
 unsigned long current_time = 0;
 int pushIntevalCount = 0;
 unsigned long pushIntervals[pushIntevalLenght];
@@ -170,7 +170,7 @@ void toggleLed()
 }
 void sampling()
 {
-	if (remainingPushes >=0)
+	if (pushedSoFar <=totalPushCount)
 	{
 		if (myButtonState == PUSHED)
 		{
@@ -179,11 +179,12 @@ void sampling()
 		}
 		if (myButtonState == RELEASED)
 		{
-			remainingPushes--;
+			
 			Serial.print(samplingLocutions[0]);
-			Serial.print(remainingPushes);
+			Serial.print(totalPushCount-pushedSoFar);
 			Serial.println(samplingLocutions[1]);
 			recordInterval();
+			pushedSoFar++;
 			digitalWrite(LED_BUILTIN, LOW);
 		}
 	}
@@ -226,7 +227,7 @@ void resetCounters()
 {
 	pushIntevalCount = 0;
 	locutionCounter = 0;
-	remainingPushes = nPuhses;
+	pushedSoFar = 0;
 	current_time = millis();
 }
 void welcome()
@@ -234,24 +235,28 @@ void welcome()
 	//this is for now the number of locutions in the array
 	if (locutionCounter < 5)
 	{
-		if (locutionCounter >1)
+		
+		if (locutionCounter > 1 && locutionCounter < 4)
 		{
 			Serial.print(welcomingLocutions[2]);
-			Serial.print(nPuhses);
+			Serial.print(totalPushCount);
 			Serial.println(welcomingLocutions[3]);
 			//Reset counter and change state
-			locutionCounter = 4;
+			locutionCounter +=2;
 		}
 		else
 		{
 			Serial.println(welcomingLocutions[locutionCounter]);
+			locutionCounter++;
+
 		}
-		locutionCounter++;
+	
 	}
 	else if (myButtonState == RELEASED) 
 	{
 		current_time = millis();
 		myAppState = SAMPLING;
+		Serial.println("");
 		Serial.println(recordingLocution);
 	}
 
