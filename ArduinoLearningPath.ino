@@ -1,3 +1,8 @@
+/*
+Now code has becomed awfully long and we have some problems of sync with serial output
+It's time for funtions this is an abstraction that lets you isolate code and repete it multiple times
+*/
+
 //type definition
 #define BUTTON 5
 typedef enum
@@ -13,12 +18,13 @@ BUTTON_STATE myButtonState = READY;
 APPLICATION_STATE myAppState = WELCOMING;
 const  int nPuhses = 10;
 int lastUpdate = 0;
+int locutionCounter = 0;
 //array of String 
 String locutions[]={
 	"Welcome to our button tracking simulator.",
-	"We will take a number of samples."
+	"We will take a number of samples.",
 	"Please push your button ", 
-	"times"
+	" times."
 };
 void setup()
 {
@@ -29,6 +35,33 @@ void setup()
 	pinMode(BUTTON, INPUT_PULLUP);
 	//SetUp Seriall port at 9600 bitrate
 	Serial.begin(9600);
+}
+void welcome()
+{
+	//this is for now the number of locutions in the array
+	if (locutionCounter < 4)
+	{
+		if (locutionCounter >1)
+		{
+			Serial.print(locutions[2]);
+			Serial.print(nPuhses);
+			Serial.println(locutions[3]);
+			//Reset counter and change state
+			locutionCounter = 0;
+			lastUpdate = millis();
+			myAppState = SAMPLING;
+		}
+		else
+		{
+			Serial.println(locutions[locutionCounter]);
+		}
+		locutionCounter++;
+	}//Excetpion control
+	else
+	{
+		lastUpdate = millis();
+		myAppState = SAMPLING;
+	}
 }
 
 void loop()
@@ -60,14 +93,7 @@ void loop()
 	switch (myAppState)
 	{
 		case WELCOMING:
-			Serial.println(locutions[0]);
-			Serial.println(locutions[1]);
-			Serial.println(locutions[2]);
-			Serial.print(nPuhses);
-			Serial.println(locutions[3]);
-			myAppState = SAMPLING;
-			//on state change store time
-			lastUpdate = millis();
+			welcome();
 			break;
 		case SAMPLING:
 			break;
