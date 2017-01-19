@@ -25,8 +25,7 @@ int locutionCounter = 0;
 String welcomingLocutions[]={
 	"Welcome to our button tracking simulator.",
 	"We will take a number of samples.",
-	"Please push your button ", 
-	" times.",
+	"Please push your button " + String(totalPushCount) + " times.",
 	"Push the button whenever you are ready to start."
 };
 String samplingLocutions[] = {
@@ -233,24 +232,11 @@ void resetCounters()
 void welcome()
 {
 	//this is for now the number of locutions in the array
-	if (locutionCounter < 5)
+	//if (locutionCounter < sizeof(welcomingLocutions))
+	if (locutionCounter < 4)
 	{
-		
-		if (locutionCounter > 1 && locutionCounter < 4)
-		{
-			Serial.print(welcomingLocutions[2]);
-			Serial.print(totalPushCount);
-			Serial.println(welcomingLocutions[3]);
-			//Reset counter and change state
-			locutionCounter +=2;
-		}
-		else
-		{
-			Serial.println(welcomingLocutions[locutionCounter]);
-			locutionCounter++;
-
-		}
-	
+		Serial.println(welcomingLocutions[locutionCounter]);
+		locutionCounter++;
 	}
 	else if (myButtonState == RELEASED) 
 	{
