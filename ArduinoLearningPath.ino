@@ -33,6 +33,7 @@ String samplingLocutions[] = {
 	" remaining"
 };
 String startPlayingLocution = "Now we have collected all needed that and we'll start playing the secuence";
+String resetLocution = "Please if at any point you would like to reestart the program, simply push the button";
 int remainingPushes = nPuhses;
 unsigned long current_time = 0;
 int pushIntevalCount = 0;
@@ -48,6 +49,7 @@ void playSequence();
 void sampling();
 void recordInterval();
 void resetCounters();
+void resetApplication();
 void toggleLed();
 void setup()
 {
@@ -89,6 +91,7 @@ void applicaitonFlow()
 		playSequence();
 		break;
 	case RESET:
+		resetApplication();
 		break;
 	default:
 		break;
@@ -125,6 +128,10 @@ void evaluateButtonState(int buttonVal)
 }
 void playSequence()
 {
+	if (myButtonState == RELEASED)
+	{
+		myAppState = RESET;
+	}
 	//resets counter to start loop over
 	if (isLoop && !(pushIntevalCount < pushIntevalLenght))
 	{
@@ -137,6 +144,15 @@ void playSequence()
 		pushIntevalCount++;
 		current_time = millis();
 	}
+}
+void resetApplication()
+{
+	Serial.println("");
+	Serial.println("Reseting application ...");
+	Serial.println("-----------------------------------");
+	Serial.println("");
+	myAppState = WELCOMING;
+	resetCounters();
 }
 void toggleLed()
 {
@@ -192,13 +208,16 @@ void startPlaying()
 	Serial.println("]");
 	Serial.println(startPlayingLocution);
 	resetCounters();
+	Serial.println("");
+	Serial.println("");
+	Serial.println(resetLocution);
 	myAppState = PLAYING;
 }
 void resetCounters()
 {
 	pushIntevalCount = 0;
 	locutionCounter = 0;
-	remainingPushes = 0;
+	remainingPushes = nPuhses;
 	current_time = millis();
 }
 void welcome()
