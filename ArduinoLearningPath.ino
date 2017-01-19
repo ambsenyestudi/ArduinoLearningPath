@@ -37,14 +37,18 @@ int remainingPushes = nPuhses;
 unsigned long current_time = 0;
 int pushIntevalCount = 0;
 unsigned long pushIntervals[pushIntevalLenght];
+bool isLoop = true;
 // if you declare your functions here the you can consume theme with no order problem through out the code
 /*function declarataion*/
 void welcome();
 void evaluateButtonState(int buttonVal);
 void applicaitonFlow();
 void startPlaying();
+void playSequence();
 void sampling();
 void recordInterval();
+void resetCounters();
+void toggleLed();
 void setup()
 {
 	//Use default led
@@ -82,6 +86,7 @@ void applicaitonFlow()
 		startPlaying();
 		break;
 	case PLAYING:
+		playSequence();
 		break;
 	case RESET:
 		break;
@@ -118,9 +123,29 @@ void evaluateButtonState(int buttonVal)
 		break;
 	}
 }
+void playSequence()
+{
+	//resets counter to start loop over
+	if (isLoop && !(pushIntevalCount < pushIntevalLenght))
+	{
+		pushIntevalCount = 0;
+	}
+
+	if ((millis() - current_time) > pushIntervals[pushIntevalCount])
+	{
+		toggleLed();
+		pushIntevalCount++;
+		current_time = millis();
+	}
+}
+void toggleLed()
+{
+	bool previousState = digitalRead(LED_BUILTIN);
+	digitalWrite(LED_BUILTIN, !previousState);
+}
 void sampling()
 {
-	if (remainingPushes > -1)
+	if (remainingPushes >=0)
 	{
 		if (myButtonState == PUSHED)
 		{
@@ -153,10 +178,28 @@ void recordInterval()
 }
 void startPlaying()
 {
-	
+	//Just tu ensure results are full
+	Serial.println("Results are:");
+	Serial.print("[");
+	for (int i = 0; i < pushIntevalLenght; i++)
+	{
+		Serial.print(pushIntervals[i]);
+		if (i < pushIntevalLenght - 1)
+		{
+			Serial.print(",");
+		}
+	}
+	Serial.println("]");
 	Serial.println(startPlayingLocution);
-	
+	resetCounters();
 	myAppState = PLAYING;
+}
+void resetCounters()
+{
+	pushIntevalCount = 0;
+	locutionCounter = 0;
+	remainingPushes = 0;
+	current_time = millis();
 }
 void welcome()
 {
