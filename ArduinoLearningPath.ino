@@ -41,6 +41,7 @@ unsigned long current_time = 0;
 int pushIntevalCount = 0;
 unsigned long pushIntervals[pushIntevalLenght];
 bool isLoop = true;
+bool isButtonStateVerbose = false;
 // if you declare your functions here the you can consume theme with no order problem through out the code
 /*function declarataion*/
 void welcome();
@@ -108,7 +109,10 @@ void evaluateButtonState(int buttonVal)
 		if (buttonVal == 0)
 		{
 			myButtonState = PUSHED;
-			Serial.println("Button Pushed ");
+			if (isButtonStateVerbose)
+			{
+				Serial.println("Button Pushed ");
+			}
 		}
 		break;
 	case PUSHED:
@@ -122,7 +126,10 @@ void evaluateButtonState(int buttonVal)
 		break;
 	case RELEASED:
 		myButtonState = READY;
-		Serial.println("Button Released ");
+		if (isButtonStateVerbose)
+		{
+			Serial.println("Button Released ");
+		}
 		break;
 	default:
 		break;
@@ -245,7 +252,7 @@ void welcome()
 	{
 		current_time = millis();
 		myAppState = SAMPLING;
-		Serial.println("recordingLocution");
+		Serial.println(recordingLocution);
 	}
 
 }
