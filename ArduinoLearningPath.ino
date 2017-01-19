@@ -5,9 +5,10 @@ It's time for funtions this is an abstraction that lets you isolate code and rep
 
 //type definition
 #define BUTTON 5
+//we need buton pushed and button released so we will implement a inbetween state
 typedef enum
 {
-	READY, PUSHED, RELEASED
+	READY, PUSHED, DOWN, RELEASED
 }BUTTON_STATE;
 typedef enum
 {
@@ -26,6 +27,12 @@ String locutions[]={
 	"Please push your button ", 
 	" times."
 };
+// if you declare your functions here the you can consume theme with no order problem through out the code
+/*function declarataion*/
+void welcome();
+void evaluateButtonState(int buttonVal);
+void applicaitonFlow();
+void sampling();
 void setup()
 {
 	//Use default led
@@ -35,6 +42,79 @@ void setup()
 	pinMode(BUTTON, INPUT_PULLUP);
 	//SetUp Seriall port at 9600 bitrate
 	Serial.begin(9600);
+}
+
+
+void loop()
+{
+	//Now down is 1 and up is 0
+	int btn1val = digitalRead(BUTTON);
+	//first check input
+	evaluateButtonState(btn1val);
+	//then execute aplication flow
+	applicaitonFlow();
+	
+	
+}
+void applicaitonFlow()
+{
+	switch (myAppState)
+	{
+	case WELCOMING:
+		welcome();
+		break;
+	case SAMPLING:
+		break;
+	case PLAYING:
+		break;
+	case RESET:
+		break;
+	default:
+		break;
+	}
+}
+void evaluateButtonState(int buttonVal)
+{
+	//button state change
+	switch (myButtonState)
+	{
+	case READY:
+		if (buttonVal == 0)
+		{
+			myButtonState = PUSHED;
+			Serial.println("Button Pushed ");
+		}
+		break;
+	case PUSHED:
+		myButtonState = DOWN;
+		break;
+	case DOWN:
+		if (buttonVal == 1)
+		{
+			myButtonState = RELEASED;
+		}
+		break;
+	case RELEASED:
+		myButtonState = READY;
+		Serial.println("Button Released ");
+		break;
+	default:
+		break;
+	}
+}
+void sampling()
+{
+	/*
+	//button pushed 
+	if (btn1val == 1)
+	{
+		digitalWrite(LED_BUILTIN, HIGH);
+	}
+	else
+	{
+		digitalWrite(LED_BUILTIN, LOW);
+	}
+	*/
 }
 void welcome()
 {
@@ -64,54 +144,3 @@ void welcome()
 	}
 }
 
-void loop()
-{
-	//Now down is 1 and up is 0
-	int btn1val = digitalRead(BUTTON);
-	//button state change
-	switch (myButtonState)
-	{
-		case READY:
-			if (btn1val == 0)
-			{
-				myButtonState = PUSHED;
-			}
-			break;
-		case PUSHED:
-			if (btn1val == 1)
-			{
-				myButtonState = RELEASED;
-			}
-			break;
-		case RELEASED:
-			myButtonState = READY;
-			Serial.println("Button Released ");
-			break;
-		default:
-		break;
-	}
-	switch (myAppState)
-	{
-		case WELCOMING:
-			welcome();
-			break;
-		case SAMPLING:
-			break;
-		case PLAYING:
-			break;
-		case RESET:
-			break;
-		default:
-			break;
-	}
-	//button pushed 
-	if (btn1val == 1)
-	{
-		digitalWrite(LED_BUILTIN, HIGH);
-	}
-	else
-	{
-		digitalWrite(LED_BUILTIN, LOW);
-	}
-	
-}
