@@ -1,15 +1,7 @@
-/*
-Now code has becomed awfully long and we have some problems of sync with serial output
-It's time for funtions this is an abstraction that lets you isolate code and repete it multiple times
-*/
+#include <Button.h>
 
 //type definition
-#define BUTTON 5
-//we need buton pushed and button released so we will implement a inbetween state
-typedef enum
-{
-	READY, PUSHED, DOWN, RELEASED
-}BUTTON_STATE;
+Button button(5, INPUT_PULLUP);
 typedef enum
 {
 	WELCOMING, SAMPLING, STARTING_PLAY, PLAYING, RESET
@@ -18,7 +10,6 @@ typedef enum
 const int totalPushCount = 10;
 const int pushIntevalLenght = totalPushCount * 2;
 //fields
-BUTTON_STATE myButtonState = READY;
 APPLICATION_STATE myAppState = WELCOMING;
 int locutionCounter = 0;
 
@@ -46,7 +37,6 @@ bool isButtonStateVerbose = false;
 // if you declare your functions here the you can consume theme with no order problem through out the code
 /*function declarataion*/
 void welcome();
-void evaluateButtonState(int buttonVal);
 void applicaitonFlow();
 void startPlaying();
 void playSequence();
@@ -59,9 +49,6 @@ void setup()
 {
 	//Use default led
 	pinMode(LED_BUILTIN, OUTPUT);
-	//Use dthis this pin for button
-	//Since we are using a protoboard button now and pullup using the internal arduino resistors, the values excange
-	pinMode(BUTTON, INPUT_PULLUP);
 	//SetUp Seriall port at 9600 bitrate
 	Serial.begin(9600);
 }
@@ -69,14 +56,9 @@ void setup()
 
 void loop()
 {
-	//Now down is 1 and up is 0
-	int btn1val = digitalRead(BUTTON);
-	//first check input
-	evaluateButtonState(btn1val);
-	//then execute aplication flow
+	button.updateState();
+	
 	applicaitonFlow();
-	
-	
 }
 void applicaitonFlow()
 {
@@ -101,44 +83,10 @@ void applicaitonFlow()
 		break;
 	}
 }
-void evaluateButtonState(int buttonVal)
-{
-	//button state change
-	switch (myButtonState)
-	{
-	case READY:
-		if (buttonVal == 0)
-		{
-			myButtonState = PUSHED;
-			if (isButtonStateVerbose)
-			{
-				Serial.println("Button Pushed ");
-			}
-		}
-		break;
-	case PUSHED:
-		myButtonState = DOWN;
-		break;
-	case DOWN:
-		if (buttonVal == 1)
-		{
-			myButtonState = RELEASED;
-		}
-		break;
-	case RELEASED:
-		myButtonState = READY;
-		if (isButtonStateVerbose)
-		{
-			Serial.println("Button Released ");
-		}
-		break;
-	default:
-		break;
-	}
-}
+
 void playSequence()
 {
-	if (myButtonState == RELEASED)
+	if (button.getState() == BUTTON_STATE::RELEASED)
 	{
 		myAppState = RESET;
 	}
@@ -173,12 +121,12 @@ void sampling()
 {
 	if (pushedSoFar <=totalPushCount)
 	{
-		if (myButtonState == PUSHED)
+		if (button.getState() == BUTTON_STATE::PUSHED)
 		{
 			digitalWrite(LED_BUILTIN, HIGH);
 			recordInterval();
 		}
-		if (myButtonState == RELEASED)
+		if (button.getState() == BUTTON_STATE::RELEASED)
 		{
 			
 			Serial.print(samplingLocutions[0]);
@@ -238,7 +186,7 @@ void welcome()
 		Serial.println(welcomingLocutions[locutionCounter]);
 		locutionCounter++;
 	}
-	else if (myButtonState == RELEASED) 
+	else if (button.getState() == BUTTON_STATE::RELEASED)
 	{
 		current_time = millis();
 		myAppState = SAMPLING;
