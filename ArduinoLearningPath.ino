@@ -1,7 +1,8 @@
-#include <Button.h>
-
+#include <StatefulButton.h>
+#include <LEDManager.h>
 //type definition
-Button button(5, INPUT_PULLUP);
+StatefulButton button(5, INPUT_PULLUP);
+LEDManager led0(LED_BUILTIN);
 typedef enum
 {
 	WELCOMING, SAMPLING, STARTING_PLAY, PLAYING, RESET
@@ -44,11 +45,8 @@ void sampling();
 void recordInterval();
 void resetCounters();
 void resetApplication();
-void toggleLed();
 void setup()
 {
-	//Use default led
-	pinMode(LED_BUILTIN, OUTPUT);
 	//SetUp Seriall port at 9600 bitrate
 	Serial.begin(9600);
 }
@@ -86,7 +84,7 @@ void applicaitonFlow()
 
 void playSequence()
 {
-	if (button.getState() == BUTTON_STATE::RELEASED)
+	if (button.getState() == BUTTON_STATE::ST_RELEASED)
 	{
 		myAppState = RESET;
 	}
@@ -98,7 +96,7 @@ void playSequence()
 
 	if ((millis() - current_time) > pushIntervals[pushIntevalCount])
 	{
-		toggleLed();
+		led0.toggle();
 		pushIntevalCount++;
 		current_time = millis();
 	}
@@ -112,21 +110,17 @@ void resetApplication()
 	myAppState = WELCOMING;
 	resetCounters();
 }
-void toggleLed()
-{
-	bool previousState = digitalRead(LED_BUILTIN);
-	digitalWrite(LED_BUILTIN, !previousState);
-}
+
 void sampling()
 {
 	if (pushedSoFar <=totalPushCount)
 	{
-		if (button.getState() == BUTTON_STATE::PUSHED)
+		if (button.getState() == BUTTON_STATE::ST_PUSHED)
 		{
-			digitalWrite(LED_BUILTIN, HIGH);
+			led0.On();
 			recordInterval();
 		}
-		if (button.getState() == BUTTON_STATE::RELEASED)
+		if (button.getState() == BUTTON_STATE::ST_RELEASED)
 		{
 			
 			Serial.print(samplingLocutions[0]);
@@ -134,7 +128,7 @@ void sampling()
 			Serial.println(samplingLocutions[1]);
 			recordInterval();
 			pushedSoFar++;
-			digitalWrite(LED_BUILTIN, LOW);
+			led0.Off();
 		}
 	}
 	else
@@ -186,7 +180,7 @@ void welcome()
 		Serial.println(welcomingLocutions[locutionCounter]);
 		locutionCounter++;
 	}
-	else if (button.getState() == BUTTON_STATE::RELEASED)
+	else if (button.getState() == BUTTON_STATE::ST_RELEASED)
 	{
 		current_time = millis();
 		myAppState = SAMPLING;
